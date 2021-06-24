@@ -1,0 +1,41 @@
+version: '3.6'
+services:
+    unblockneteasemusic_go:
+        image: unblockneteasemusic_go
+        build: ./UnblockNeteaseMusicGo/
+        container_name: UnblockNeteaseMusicGo_UnblockNeteaseMusicGo
+        restart: always
+        volumes:
+            - ./cert/server.crt:/cert/server.crt
+            - ./cert/server.key:/cert/server.key
+            - /etc/localtime:/etc/localtime:ro
+            - /etc/timezone:/etc/timezone:ro
+        environment:
+            SOURCE: "kuwo:kugou"
+        dns:
+            - 114.114.114.114
+            - 223.5.5.5
+        networks:
+            backend:
+                aliases:
+                    - UnblockNeteaseMusicGo
+
+    xray:
+        image: teddysun/xray
+        container_name: UnblockNeteaseMusicGo_XRay
+        restart: always
+        volumes:
+            - ./xray/config.json:/etc/xray/config.json
+            - /etc/localtime:/etc/localtime:ro
+            - /etc/timezone:/etc/timezone:ro
+        ports:
+            - "10086:10086"
+        depends_on: 
+            - unblockneteasemusic_go
+        networks:
+            backend:
+                aliases:
+                    - xray
+
+networks:
+    backend:
